@@ -4,6 +4,9 @@
 .idea/
 .iml
 
+.flutter-plugins
+.flutter-plugins-dependencies
+
 .packages
 .pub/
 
