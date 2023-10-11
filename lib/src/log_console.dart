@@ -25,14 +25,12 @@ class LogConsole extends StatefulWidget {
     _bufferSize = bufferSize;
     _initialized = true;
 
-    Logger.addOutputListener(LogOutputListener(
-      (e) {
-        if (_outputEventBuffer.length == bufferSize) {
-          _outputEventBuffer.removeFirst();
-        }
-        _outputEventBuffer.add(e);
-      },
-    ));
+    Logger.addOutputListener((event) {
+      if (_outputEventBuffer.length == bufferSize) {
+        _outputEventBuffer.removeFirst();
+      }
+      _outputEventBuffer.add(event);
+    });
   }
 
   static void open(BuildContext context,
@@ -68,7 +66,7 @@ class RenderedEvent {
 }
 
 class _LogConsoleState extends State<LogConsole> {
-  late LogOutputListener _callback;
+  late OutputCallback _callback;
 
   ListQueue<RenderedEvent> _renderedBuffer = ListQueue();
   List<RenderedEvent> _filteredBuffer = [];
@@ -81,6 +79,7 @@ class _LogConsoleState extends State<LogConsole> {
 
   var _currentId = 0;
   bool _scrollListenerEnabled = true;
+
   bool get _scrollEnabled => widget.scrollEnabled;
   bool _followBottom = true;
 
@@ -88,20 +87,19 @@ class _LogConsoleState extends State<LogConsole> {
   void initState() {
     super.initState();
 
-    _callback = LogOutputListener((e) {
+    _callback = (e) {
       if (_renderedBuffer.length == _bufferSize) {
         _renderedBuffer.removeFirst();
       }
       _renderedBuffer.add(_renderEvent(e));
       _refreshFilter();
-    });
+    };
 
     Logger.addOutputListener(_callback);
 
     _scrollController.addListener(() {
       if (!_scrollListenerEnabled) return;
-      var scrolledToBottom = _scrollController.offset >=
-          _scrollController.position.maxScrollExtent;
+      var scrolledToBottom = _scrollController.offset >= _scrollController.position.maxScrollExtent;
       setState(() {
         _followBottom = scrolledToBottom;
       });
@@ -147,13 +145,11 @@ class _LogConsoleState extends State<LogConsole> {
       theme: widget.dark
           ? ThemeData(
               brightness: Brightness.dark,
-              colorScheme:
-                  ColorScheme.fromSwatch().copyWith(secondary: Colors.blueGrey),
+              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.blueGrey),
             )
           : ThemeData(
               brightness: Brightness.light,
-              colorScheme: ColorScheme.fromSwatch()
-                  .copyWith(secondary: Colors.lightBlueAccent),
+              colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.lightBlueAccent),
             ),
       home: Scaffold(
         body: SafeArea(
@@ -403,16 +399,5 @@ class LogBar extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class LogOutputListener extends LogOutput {
-  final void Function(OutputEvent) _listener;
-
-  LogOutputListener(this._listener);
-
-  @override
-  void output(OutputEvent event) {
-    _listener(event);
   }
 }

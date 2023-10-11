@@ -10,9 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  logger:
-    git:
-      url: https://github.com/FMotalleb/logger.git
-      ref: a3545e37f1a37414fbd425f0aa3bd603d94cec31
+  logger: ^2.0.1
   sensors_plus: ^3.0.3
   share_plus: ^7.1.0
